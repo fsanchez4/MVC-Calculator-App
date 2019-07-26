@@ -1,1 +1,1 @@
-# Android calculator application built using MVC architecture
+# MVC Calculator App
