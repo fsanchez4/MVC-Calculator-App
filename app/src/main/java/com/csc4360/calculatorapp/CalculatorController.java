@@ -1,4 +1,4 @@
-// Calculator App by Frankie Sanchez, 900942699
+// MVC - Calculator App by Frankie Sanchez, 900942699
 // fsanchez4@student.gsu.edu
 package com.csc4360.calculatorapp;
 
@@ -9,16 +9,21 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
-public class MainActivity extends AppCompatActivity {
+public class CalculatorController extends AppCompatActivity {
 
-    // Fields used throughout MainActivity file to extract and interact with values from
-    // displayContent string
-    private boolean isOperation = false;
-    private double firstValue = 0.0;
-    private int indexOfSecondValue = 0;
-    private char currentOp;
+    // Call new model from Calculator Model class
+    private CalculatorModel model = new CalculatorModel();
+    private int index;   // for screen display String
     private String displayContent;
     private EditText calculatorDisplay;
+
+    /*
+    * FOR USE WITHOUT MVC CALC:
+    * private boolean isOperation = false;
+    * private double firstValue = 0.0;
+    * private int indexOfSecondValue = 0;
+    * private char currentOp;
+     */
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -135,7 +140,7 @@ public class MainActivity extends AppCompatActivity {
         division.setOnClickListener(calculatorListener);
 
         // Creating new OnClickListeners for special operations
-        // Delete
+        // Delete operation; affects only screen display not backend functionality
         delete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -152,7 +157,7 @@ public class MainActivity extends AppCompatActivity {
         clearEverything.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                calculatorDisplay.setText("0");
+                calculatorDisplay.setText(model.clearEverything());
             }
         });
 
@@ -160,10 +165,15 @@ public class MainActivity extends AppCompatActivity {
         percent.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                double value = Double.parseDouble(calculatorDisplay.getText().toString());
-                value = value / 100.0;
-                calculatorDisplay.setText(String.valueOf(value));
+                model.pushData(calculatorDisplay.getText().toString());
+                calculatorDisplay.setText(model.percent());
 
+                /*
+                * FOR USE WITHOUT MVC CALC;
+                * double value = Double.parseDouble(calculatorDisplay.getText().toString());
+                * value = value / 100.0;
+                * calculatorDisplay.setText(String.valueOf(value));
+                 */
             }
         });
 
@@ -171,20 +181,27 @@ public class MainActivity extends AppCompatActivity {
         sign.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                double value = Double.parseDouble(calculatorDisplay.getText().toString());
-                value = value - (2 * value);
-                if (value == Math.floor(value)) {
-                    calculatorDisplay.setText(String.valueOf((int) value));
-                } else {
-                    calculatorDisplay.setText(String.valueOf(value));
-                }
+                model.pushData(calculatorDisplay.getText().toString());
+                calculatorDisplay.setText(model.negate());
+
+                /*
+                * FOR USE WITHOUT MVC CALC;
+                * double value = Double.parseDouble(calculatorDisplay.getText().toString());
+                * value = value - (2 * value);
+                * if (value == Math.floor(value)) {
+                *     calculatorDisplay.setText(String.valueOf((int) value));
+                * } else {
+                *     calculatorDisplay.setText(String.valueOf(value));
+                * }
+                 */
             }
         });
     }
 
     // Method for ensuring up-to-date calculator display
     public void adjustDisplayContent(String number) {
-        if (displayContent.equals("0") || displayContent.equals("Error")) {
+        if (displayContent.equals("0") || displayContent.equals("Error") ||
+                displayContent.equals("")) {
             calculatorDisplay.setText(number);
         } else {
             calculatorDisplay.append(number);
@@ -193,15 +210,28 @@ public class MainActivity extends AppCompatActivity {
 
     // Add method; first value is captured for operation, display updated, and op set
     public void add() {
+
         if (displayContent.matches(".*\\+.*") || displayContent.matches(".*-.*") ||
                 displayContent.matches(".*\\*.*") || displayContent.matches(".*/.*")) {
-            performEquals();
+
+            model.isOperation = true;
+            model.pushData(displayContent.substring(index));
+            calculatorDisplay.setText(model.calculate());
+            // performEquals();
         } else {
-            firstValue = Double.parseDouble(displayContent);
-            indexOfSecondValue = displayContent.length() + 1;
+            model.pushData(displayContent);
+            model.pushData("+");
+            index = displayContent.length() + 1;
             calculatorDisplay.append("+");
-            isOperation = true;
-            currentOp = '+';
+
+            /*
+            * FOR USE WITHOUT MVC CALC;
+            * firstValue = Double.parseDouble(displayContent);
+            * indexOfSecondValue = displayContent.length() + 1;
+            * calculatorDisplay.append("+");
+            * isOperation = true;
+            * currentOp = '+';
+             */
         }
     }
 
@@ -209,14 +239,25 @@ public class MainActivity extends AppCompatActivity {
     public void subtract() {
         if (displayContent.matches(".*\\+.*") || displayContent.matches(".*-.*") ||
                 displayContent.matches(".*\\*.*") || displayContent.matches(".*/.*")) {
-            performEquals();
 
+            model.isOperation = true;
+            model.pushData(displayContent.substring(index));
+            calculatorDisplay.setText(model.calculate());
+            // performEquals();
         } else {
+            model.pushData(displayContent);
+            model.pushData("-");
+            index = displayContent.length() + 1;
+            calculatorDisplay.append("-");
+
+            /*
+            FOR USE WITHOUT MVC CALC;
             firstValue = Double.parseDouble(displayContent);
             indexOfSecondValue = displayContent.length() + 1;
             calculatorDisplay.append("-");
             isOperation = true;
             currentOp = '-';
+             */
         }
     }
 
@@ -224,13 +265,25 @@ public class MainActivity extends AppCompatActivity {
     public void multiply() {
         if (displayContent.matches(".*\\+.*") || displayContent.matches(".*-.*") ||
                 displayContent.matches(".*\\*.*") || displayContent.matches(".*/.*")) {
-            performEquals();
+
+            model.isOperation = true;
+            model.pushData(displayContent.substring(index));
+            calculatorDisplay.setText(model.calculate());
+            // performEquals();
         } else {
+            model.pushData(displayContent);
+            model.pushData("*");
+            index = displayContent.length() + 1;
+            calculatorDisplay.append("*");
+
+            /*
+            FOR USE WITHOUT MVC CALC;
             firstValue = Double.parseDouble(displayContent);
             indexOfSecondValue = displayContent.length() + 1;
             calculatorDisplay.append("*");
             isOperation = true;
             currentOp = '*';
+             */
         }
     }
 
@@ -238,19 +291,36 @@ public class MainActivity extends AppCompatActivity {
     public void divide() {
         if (displayContent.matches(".*\\+.*") || displayContent.matches(".*-.*") ||
                 displayContent.matches(".*\\*.*") || displayContent.matches(".*/.*")) {
-            performEquals();
+
+            model.isOperation = true;
+            model.pushData(displayContent.substring(index));
+            calculatorDisplay.setText(model.calculate());
+            // performEquals();
         } else {
+            model.pushData(displayContent);
+            model.pushData("/");
+            index = displayContent.length() + 1;
+            calculatorDisplay.append("/");
+
+            /*
+            FOR USE WITHOUT MVC CALC;
             firstValue = Double.parseDouble(displayContent);
             indexOfSecondValue = displayContent.length() + 1;
             calculatorDisplay.append("/");
             isOperation = true;
             currentOp = '/';
+             */
         }
     }
 
-    // Perform operation (equals) method; captures second value using substring, updates display as
-    // int if value = floor value and as double if value != floor value
+    // Perform operation (equals) method
     public void performEquals() {
+        model.isOperation = true;
+        model.pushData(displayContent.substring(index));
+        calculatorDisplay.setText(model.calculate());
+
+        /*
+        FOR USE WITHOUT MVC CALC;
         try {
             if (isOperation) {
                 double secondValue;
@@ -296,5 +366,6 @@ public class MainActivity extends AppCompatActivity {
         } catch (StringIndexOutOfBoundsException e) {
             System.out.println(e);
         }
+         */
     }
 }
